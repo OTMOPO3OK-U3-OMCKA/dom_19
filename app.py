@@ -6,7 +6,10 @@ from setup_db import db
 from views.directors import director_ns
 from views.genres import genre_ns
 from views.movies import movie_ns
-
+from views.auth import auth_ns
+from views.users import user_ns
+from conteiner import user_service
+from dao.model.user import User
 
 def create_app(config_object):
     app = Flask(__name__)
@@ -21,9 +24,27 @@ def register_extensions(app):
     api.add_namespace(director_ns)
     api.add_namespace(genre_ns)
     api.add_namespace(movie_ns)
+    api.add_namespace(auth_ns)
+    api.add_namespace(user_ns)
+    create_data(app, db)
 
 
-app = create_app(Config())
+def create_data(app, db):
+    with app.app_context():
+        db.create_all()
+
+        u1 = User(username="vasya", password="my_little_pony", role="user")
+        u2 = User(username="oleg", password="qwerty", role="user")
+        u3 = User(username="oleg1", password="P@ssw0rd", role="admin")
+
+        for i in [u1, u2, u3]:
+            if user_service.get_one(i.username) == None:
+                i.password = user_service.get_hash(i.password)
+                db.session.add(i)
+        db.session.commit()
+
+config = Config()
+app = create_app(config)
 app.debug = True
 
 if __name__ == '__main__':
