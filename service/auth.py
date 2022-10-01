@@ -58,7 +58,7 @@ class AuthService:
             data = request.headers["Authorization"]
             token = data.split('Bearer ')[-1]
             try:
-                d = jwt.decode(token, c.SECRET_HERE, algorithms=[c.ALGORITHM])
+                d = jwt.decode(token, c.SECRET_HERE, algorithms=[ALGORITHM])
                 role = d.get("role")
                 if role != "admin":
                     abort(403)
